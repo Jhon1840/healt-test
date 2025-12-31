@@ -1,5 +1,10 @@
+
 #!/usr/bin/env bash
-set -e
-cd "$(dirname "$0")"
-source .venv/bin/activate
-python check_availability.py
+
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
+PYTHON="$BASE_DIR/.venv/bin/python"
+
+cd "$BASE_DIR" || exit 1
+
+"$PYTHON" check_availability.py >/dev/null 2>&1
+

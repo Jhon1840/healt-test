@@ -1,2 +1,6 @@
 .env
 README.md
+.venv/
+cron.log
+__pycache__/
+*.pyc

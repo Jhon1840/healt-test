@@ -39,5 +39,9 @@ jobs:
       - name: Install Playwright browsers
         run: python -m playwright install chromium
 
+      - name: 🔎 Probar acceso a /login con curl
+        run: curl -I https://intramax.bo/login
+
+
       - name: Run availability check
         run: python check_availability.py

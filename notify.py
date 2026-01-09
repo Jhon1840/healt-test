@@ -9,7 +9,7 @@ import httpx
 
 def format_bolivia_time() -> str:
     now_utc = datetime.now(timezone.utc)
-    la_paz = now_utc - timedelta(hours=4)  # UTC-4
+    la_paz = now_utc - timedelta(hours=4)  
     return la_paz.strftime("%Y-%m-%d %H:%M:%S")
 
 
@@ -42,19 +42,19 @@ def _get_base_url() -> str:
     return os.getenv("LOGIN_URL", "")
 
 
-def _build_error_message(test_title: str, error_message: str, current_url: str, context_url: Optional[str]) -> str:
+def _build_error_message(test_title: str, error_message: str, current_url: str, context_url: Optional[str], project_name: str = "Intramax", base_url: Optional[str] = None) -> str:
     raw_error = error_message or "No se detectó mensaje de error"
     error_msg = clean_message_text(raw_error)
     offline = is_system_offline(raw_error)
 
     tipo_falla = "🛑 *SISTEMA NO DISPONIBLE*" if offline else "⚠️ *FALLA FUNCIONAL DETECTADA*"
     descripcion = (
-        "🚨 El sistema Intramax está *caído o inalcanzable*. No respondió correctamente a una petición de rutas."
+        f"🚨 El sistema {project_name} está *caído o inalcanzable*. No respondió correctamente a una petición de rutas."
         if offline
-        else "⚠️ El sistema Intramax está *en línea*, pero falló la exportación de Excel."
+        else f"⚠️ El sistema {project_name} está *en línea*, pero falló la exportación de Excel."
     )
 
-    base = _get_base_url() or "PRODUCCION"
+    base = base_url or _get_base_url() or "PRODUCCION"
     url_info = [f"🔎 URL: {current_url}"]
 
     return "\n".join(
@@ -62,7 +62,7 @@ def _build_error_message(test_title: str, error_message: str, current_url: str, 
             tipo_falla,
             descripcion,
             "",
-            "📌 Proyecto: *Intramax*",
+            f"📌 Proyecto: *{project_name}*",
             f"🌐 Entorno: *{base}*",
             f"🧪 Prueba: *{test_title}*",
             f"💥 Error detectado: {error_msg}",
@@ -73,13 +73,13 @@ def _build_error_message(test_title: str, error_message: str, current_url: str, 
     )
 
 
-def _build_success_message() -> str:
-    base = _get_base_url() or "PRODUCCION"
+def _build_success_message(project_name: str = "Intramax", base_url: Optional[str] = None) -> str:
+    base = base_url or _get_base_url() or "PRODUCCION"
     return "\n".join(
         [
             "✅ *SISTEMA FUNCIONANDO CORRECTAMENTE*",
             "",
-            "📌 Proyecto: *Intramax*",
+            f"📌 Proyecto: *{project_name}*",
             f"🌐 Entorno: *{base}*",
             f"🕒 Hora (Bolivia): {format_bolivia_time()}",
         ]
@@ -144,11 +144,13 @@ async def notify_test_failure(
     error_message: str,
     current_url: str,
     context_url: Optional[str] = None,
+    project_name: str = "Intramax",
+    base_url: Optional[str] = None,
 ) -> None:
-    message = _build_error_message(test_title, error_message, current_url, context_url)
+    message = _build_error_message(test_title, error_message, current_url, context_url, project_name, base_url)
     await _send_message(message)
 
 
-async def notify_test_success() -> None:
-    message = _build_success_message()
+async def notify_test_success(project_name: str = "Intramax", base_url: Optional[str] = None) -> None:
+    message = _build_success_message(project_name, base_url)
     await _send_message(message)

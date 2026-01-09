@@ -4,10 +4,8 @@ BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 PYTHON_BIN="${PYTHON_BIN:-}"
 PYTHON_ARGS=()
 
-# Carga variables de entorno desde .env si existe
 if [ -f "$BASE_DIR/.env" ]; then
   set -a
-  # shellcheck disable=SC1090
   . "$BASE_DIR/.env"
   set +a
 fi
@@ -30,7 +28,7 @@ if [ -z "$PYTHON_BIN" ]; then
   exit 2
 fi
 
-ORIGIN_IP="intramax.bo"
+ORIGIN_IP="15.235.72.8"
 HOST="intramax.bo"
 ENDPOINT="/api/search-agents?q=lk"
 

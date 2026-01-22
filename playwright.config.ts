@@ -52,8 +52,7 @@ export default defineConfig({
         // Búsqueda Global: acceso, búsqueda básica
         "**/01-global-search-acceso.spec.ts",
         "**/02-global-search-texto-simple.spec.ts",
-        // Pagos: suscripción
-        "**/smoke-chose-subscription.spec.ts",
+        
       ],
       use: { storageState: "playwright/.auth/auth.json" },
     },

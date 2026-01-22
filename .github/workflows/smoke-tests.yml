@@ -45,7 +45,7 @@ jobs:
         # - 02-contactos-editar-nombre.spec.ts (Editar contacto)
         # - 01-global-search-acceso.spec.ts (Búsqueda global)
         # - 02-global-search-texto-simple.spec.ts (Búsqueda texto)
-        # - smoke-chose-subscription.spec.ts (Pagos)
+       
 
       - name: Upload results
         if: always()

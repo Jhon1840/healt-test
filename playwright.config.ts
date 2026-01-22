@@ -1,7 +1,8 @@
 import { defineConfig } from "@playwright/test";
-import dotenv from "dotenv";
 
-dotenv.config();
+// dotenv SOLO en local
+// import dotenv from "dotenv";
+// dotenv.config();
 
 const runId =
   process.env.RUN_ID ||
@@ -32,52 +33,68 @@ export default defineConfig({
   },
 
   projects: [
+    /* =========================
+       SETUP (LOGIN)
+    ========================= */
     {
       name: "setup",
-      testMatch: /auth\.setup\.spec\.ts/,
+      testMatch: ["**/auth.setup.spec.ts"],
     },
+
+    /* =========================
+       SMOKE (POST-DEPLOY)
+    ========================= */
     {
       name: "smoke",
       dependencies: ["setup"],
       testMatch: [
-        // Autenticación
-        "**/auth.setup.spec.ts",
-        // CRUD Listings: crear, editar, activar
+        // Listings
         "**/01-listings-create.seed.spec.ts",
         "**/02-listings-edit-validar-tipos.spec.ts",
         "**/09-listings-activar-cambiar-estado.spec.ts",
-        // CRUD Contactos: crear, editar
+
+        // Contactos
         "**/01-contactos-creacion-semilla.spec.ts",
         "**/02-contactos-editar-nombre.spec.ts",
-        // Búsqueda Global: acceso, búsqueda básica
+
+        // Global search
         "**/01-global-search-acceso.spec.ts",
         "**/02-global-search-texto-simple.spec.ts",
-        
       ],
-      use: { storageState: "playwright/.auth/auth.json" },
+      use: {
+        storageState: "playwright/.auth/auth.json",
+      },
     },
+
+    /* =========================
+       SEED
+    ========================= */
     {
       name: "seed",
       dependencies: ["setup"],
-      testMatch: /01-listings-create\.seed\.spec\.ts/,
+      testMatch: ["**/01-listings-create.seed.spec.ts"],
       use: { storageState: "playwright/.auth/auth.json" },
     },
+
+    /* =========================
+       MÓDULOS AISLADOS
+    ========================= */
     {
       name: "listings-only",
       dependencies: ["setup"],
-      testMatch: /tests\/listings\/(?!01-listings-create\.seed).*\.spec\.ts/,
+      testMatch: ["tests/listings/(?!01-listings-create\\.seed).*\\.spec\\.ts"],
       use: { storageState: "playwright/.auth/auth.json" },
     },
     {
       name: "contacts-only",
       dependencies: ["setup"],
-      testMatch: /tests\/contacts\/.*\.spec\.ts/,
+      testMatch: ["tests/contacts/**/*.spec.ts"],
       use: { storageState: "playwright/.auth/auth.json" },
     },
     {
       name: "global-search",
       dependencies: ["setup"],
-      testMatch: /tests\/global-search\/.*\.spec\.ts/,
+      testMatch: ["tests/global-search/**/*.spec.ts"],
       use: { storageState: "playwright/.auth/auth.json" },
     },
   ],

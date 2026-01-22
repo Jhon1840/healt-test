@@ -1,0 +1,17 @@
+name: Deploy Stage
+
+on:
+  push:
+    branches: [stage]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Simulate deploy
+        run: |
+          echo "Starting deploy to stage..."
+          sleep 5
+          echo "Deploy finished successfully"
+

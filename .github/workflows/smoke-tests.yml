@@ -31,15 +31,21 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Smoke Tests
-        run: |
-          npx playwright test \
-            --project=setup \
-            --project=listings-only \
-            --project=global-search
+        run: npx playwright test --project=smoke
         env:
           LOGIN_URL: ${{ secrets.STAGE_URL }}
           LOGIN_EMAIL: ${{ secrets.TEST_EMAIL }}
           LOGIN_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+        # Tests ejecutados:
+        # - auth.setup.spec.ts (Autenticación)
+        # - 01-listings-create.seed.spec.ts (Crear listing)
+        # - 02-listings-edit-validar-tipos.spec.ts (Editar listing)
+        # - 09-listings-activar-cambiar-estado.spec.ts (Activar listing)
+        # - 01-contactos-creacion-semilla.spec.ts (Crear contacto)
+        # - 02-contactos-editar-nombre.spec.ts (Editar contacto)
+        # - 01-global-search-acceso.spec.ts (Búsqueda global)
+        # - 02-global-search-texto-simple.spec.ts (Búsqueda texto)
+        # - smoke-chose-subscription.spec.ts (Pagos)
 
       - name: Upload results
         if: always()

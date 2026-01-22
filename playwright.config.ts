@@ -40,13 +40,19 @@ export default defineConfig({
       name: "smoke",
       dependencies: ["setup"],
       testMatch: [
+        // Autenticación
+        "**/auth.setup.spec.ts",
+        // CRUD Listings: crear, editar, activar
         "**/01-listings-create.seed.spec.ts",
         "**/02-listings-edit-validar-tipos.spec.ts",
         "**/09-listings-activar-cambiar-estado.spec.ts",
+        // CRUD Contactos: crear, editar
         "**/01-contactos-creacion-semilla.spec.ts",
         "**/02-contactos-editar-nombre.spec.ts",
+        // Búsqueda Global: acceso, búsqueda básica
         "**/01-global-search-acceso.spec.ts",
         "**/02-global-search-texto-simple.spec.ts",
+        // Pagos: suscripción
         "**/smoke-chose-subscription.spec.ts",
       ],
       use: { storageState: "playwright/.auth/auth.json" },

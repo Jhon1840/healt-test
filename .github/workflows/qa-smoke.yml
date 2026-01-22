@@ -1,74 +1,47 @@
-name: QA Smoke Tests
+  name: QA Smoke Tests
 
-on:
-  workflow_run:
-    workflows: ["Deploy Stage"]
-    types:
-      - completed
+  on:
+    workflow_run:
+      workflows: ["Deploy Stage"]
+      types:
+        - completed
 
-jobs:
-  smoke:
-    # Solo corre si el deploy terminó bien
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+  jobs:
+    smoke:
+      if: ${{ github.event.workflow_run.conclusion == 'success' }}
+      runs-on: ubuntu-latest
+      timeout-minutes: 15
 
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+      steps:
+        - name: Checkout QA branch
+          uses: actions/checkout@v4
+          with:
+            ref: qa
 
-    steps:
-      # 1️⃣ Checkout del código de QA (rama qa)
-      - name: Checkout QA branch
-        uses: actions/checkout@v4
-        with:
-          ref: qa
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: 20
+            cache: npm
 
-      # 2️⃣ Node
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
+        - name: Install dependencies
+          run: npm ci
 
-      # 3️⃣ Dependencias
-      - name: Install dependencies
-        run: npm ci
+        - name: Install Playwright Browsers
+          run: npx playwright install --with-deps chromium
 
-      # 4️⃣ Playwright browsers
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        - name: Run Smoke Tests
+          run: npx playwright test --project=smoke
+          env:
+            LOGIN_URL: ${{ secrets.STAGE_URL }}
+            LOGIN_EMAIL: ${{ secrets.TEST_EMAIL }}
+            LOGIN_PASSWORD: ${{ secrets.TEST_PASSWORD }}
 
-      # 5️⃣ (Opcional pero recomendado) Esperar a stage
-      - name: Wait for Stage Ready
-        run: |
-          for i in {1..30}; do
-            if curl -sf "${{ secrets.STAGE_URL }}/health"; then
-              echo "Stage ready"
-              exit 0
-            fi
-            echo "Waiting for stage..."
-            sleep 10
-          done
-          echo "Stage not ready"
-          exit 1
-
-      # 6️⃣ Ejecutar SMOKE (proyectos que tú definiste)
-      - name: Run Smoke Tests
-        run: |
-          npx playwright test \
-            --project=setup \
-            --project=listings-only \
-            --project=global-search
-        env:
-          LOGIN_URL: ${{ secrets.STAGE_URL }}
-          LOGIN_EMAIL: ${{ secrets.TEST_EMAIL }}
-          LOGIN_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-
-      # 7️⃣ Subir resultados
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: qa-smoke-results
-          path: |
-            test-results/
-            blob-report/
-          retention-days: 7
+        - name: Upload results
+          if: always()
+          uses: actions/upload-artifact@v4
+          with:
+            name: smoke-results
+            path: |
+              test-results/
+              blob-report/
